@@ -27,7 +27,7 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
                 .map(u -> mapper.map(u, UsuarioEntity.class))
                 .flatMap(repository::save)
                 .map(usuarioData -> mapper.map(usuarioData, Usuario.class))
-                .doOnSuccess(u -> log.debug("Usuario guardado exitosamente con ID: {}", u.getId()));
+                .doOnSuccess(u -> log.debug("Usuario guardado exitosamente con ID: {}", u.getIdUsuario()));
     }
 
     @Override

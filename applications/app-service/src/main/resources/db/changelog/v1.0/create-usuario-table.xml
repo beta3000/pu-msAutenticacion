@@ -7,7 +7,7 @@
 
     <changeSet id="1" author="Ciro Rodriguez">
         <createTable tableName="usuarios">
-            <column name="id" type="BIGSERIAL">
+            <column name="id_usuario" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="nombres" type="VARCHAR(100)">

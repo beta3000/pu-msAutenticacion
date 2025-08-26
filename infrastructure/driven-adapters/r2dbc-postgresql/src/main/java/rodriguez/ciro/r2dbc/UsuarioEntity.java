@@ -19,7 +19,7 @@ import java.time.LocalDate;
 public class UsuarioEntity {
     @Id
     @Column("id_usuario")
-    private Long id;
+    private Long idUsuario;
     @Column("nombres")
     private String nombres;
     @Column("apellidos")
