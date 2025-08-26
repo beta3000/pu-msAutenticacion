@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import rodriguez.ciro.model.rol.Rol;
+import rodriguez.ciro.model.rol.gateways.RolRepository;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
 import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
@@ -21,12 +23,15 @@ class RegistrarUsuarioUseCaseTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
+    @Mock
+    private RolRepository rolRepository;
 
     private RegistrarUsuarioUseCase registrarUsuarioUseCase;
 
     @BeforeEach
     void setUp() {
-        registrarUsuarioUseCase = new RegistrarUsuarioUseCase(usuarioRepository);
+        registrarUsuarioUseCase = new RegistrarUsuarioUseCase(usuarioRepository, rolRepository);
+        lenient().when(rolRepository.existePorId(anyLong())).thenReturn(Mono.just(true));
     }
 
     @Test
@@ -40,6 +45,7 @@ class RegistrarUsuarioUseCaseTest {
                 .telefono("3001234567")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
@@ -51,8 +57,10 @@ class RegistrarUsuarioUseCaseTest {
                 .telefono("3001234567")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
+        when(rolRepository.existePorId(2L)).thenReturn(Mono.just(true));
         when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))
                 .thenReturn(Mono.just(false));
         when(usuarioRepository.guardar(any(Usuario.class)))
@@ -170,6 +178,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("email-invalido")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         // When & Then
@@ -189,6 +198,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("-1000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         // When & Then
@@ -208,6 +218,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("16000000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         // When & Then
@@ -227,6 +238,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))
@@ -250,6 +262,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(BigDecimal.ZERO)
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
@@ -258,6 +271,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(BigDecimal.ZERO)
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))
@@ -279,6 +293,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("15000000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
@@ -287,6 +302,7 @@ class RegistrarUsuarioUseCaseTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("15000000"))
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))

@@ -35,4 +35,7 @@ public class RegistrarUsuarioRequest {
     @DecimalMin(value = "0", message = "El salario base debe ser mayor o igual a 0")
     @DecimalMax(value = "15000000", message = "El salario base debe ser menor o igual a 15,000,000")
     private BigDecimal salarioBase;
+
+    @NotNull(message = "El campo rol es requerido")
+    private RolDto rol;
 }

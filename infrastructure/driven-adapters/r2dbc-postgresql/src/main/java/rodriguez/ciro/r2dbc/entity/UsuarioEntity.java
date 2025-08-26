@@ -1,4 +1,4 @@
-package rodriguez.ciro.r2dbc;
+package rodriguez.ciro.r2dbc.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +34,6 @@ public class UsuarioEntity {
     private String correoElectronico;
     @Column("salario_base")
     private BigDecimal salarioBase;
+    @Column("id_rol")
+    private Long idRol;
 }

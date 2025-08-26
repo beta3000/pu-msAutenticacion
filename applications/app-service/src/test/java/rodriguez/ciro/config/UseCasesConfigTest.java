@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
+import rodriguez.ciro.model.rol.gateways.RolRepository;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,6 +42,11 @@ class UseCasesConfigTest {
         @Bean
         public UsuarioRepository usuarioRepository() {
             return Mockito.mock(UsuarioRepository.class);
+        }
+
+        @Bean
+        public RolRepository rolRepository() {
+            return Mockito.mock(RolRepository.class);
         }
     }
 

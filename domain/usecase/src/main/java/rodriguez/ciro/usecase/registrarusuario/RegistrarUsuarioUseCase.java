@@ -1,6 +1,7 @@
 package rodriguez.ciro.usecase.registrarusuario;
 
 import reactor.core.publisher.Mono;
+import rodriguez.ciro.model.rol.gateways.RolRepository;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
 import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
@@ -14,9 +15,11 @@ public class RegistrarUsuarioUseCase {
     private static final BigDecimal SALARIO_MAXIMO = new BigDecimal("15000000");
 
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
 
-    public RegistrarUsuarioUseCase(UsuarioRepository usuarioRepository) {
+    public RegistrarUsuarioUseCase(UsuarioRepository usuarioRepository, RolRepository rolRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.rolRepository = rolRepository;
     }
 
     public Mono<Usuario> registrar(Usuario usuario) {
@@ -24,6 +27,7 @@ public class RegistrarUsuarioUseCase {
                 .doOnNext(this::validarCamposRequeridos)
                 .doOnNext(this::validarFormatoEmail)
                 .doOnNext(this::validarSalario)
+                .flatMap(this::validarRolExistente)
                 .flatMap(this::validarEmailUnico)
                 .flatMap(usuarioRepository::guardar);
     }
@@ -41,6 +45,9 @@ public class RegistrarUsuarioUseCase {
         if (Objects.isNull(usuario.getSalarioBase())) {
             throw new IllegalArgumentException("El campo salario base es requerido");
         }
+        if (Objects.isNull(usuario.getRol()) || Objects.isNull(usuario.getRol().getIdRol())) {
+            throw new IllegalArgumentException("El campo rol.idRol es requerido");
+        }
     }
 
     private void validarFormatoEmail(Usuario usuario) {
@@ -55,6 +62,13 @@ public class RegistrarUsuarioUseCase {
         if (salario.compareTo(SALARIO_MINIMO) < 0 || salario.compareTo(SALARIO_MAXIMO) > 0) {
             throw new IllegalArgumentException("El salario base debe estar entre 0 y 15,000,000");
         }
+    }
+
+    private Mono<Usuario> validarRolExistente(Usuario usuario) {
+        return rolRepository.existePorId(usuario.getRol().getIdRol())
+                .flatMap(existe -> Boolean.TRUE.equals(existe)
+                        ? Mono.just(usuario)
+                        : Mono.error(new IllegalArgumentException("El rol no existe")));
     }
 
     private Mono<Usuario> validarEmailUnico(Usuario usuario) {

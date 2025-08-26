@@ -1,6 +1,7 @@
 package rodriguez.ciro.model.usuario;
 
 import lombok.*;
+import rodriguez.ciro.model.rol.Rol;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,4 +20,5 @@ public class Usuario {
     private String telefono;
     private String correoElectronico;
     private BigDecimal salarioBase;
+    private Rol rol;
 }
