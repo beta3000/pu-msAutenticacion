@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.reactivecommons.utils.ObjectMapper;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import rodriguez.ciro.model.rol.Rol;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.r2dbc.entity.UsuarioEntity;
 import rodriguez.ciro.r2dbc.repository.UsuarioReactiveRepository;
@@ -45,7 +46,7 @@ class UsuarioRepositoryAdapterTest {
                 .telefono("3001234567")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
-                .rol(rodriguez.ciro.model.rol.Rol.builder().idRol(2L).build())
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         UsuarioEntity usuarioEntity = UsuarioEntity.builder()
@@ -80,7 +81,7 @@ class UsuarioRepositoryAdapterTest {
                 .telefono("3001234567")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
-                .rol(rodriguez.ciro.model.rol.Rol.builder().idRol(2L).build())
+                .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         when(objectMapper.map(usuario, UsuarioEntity.class)).thenReturn(usuarioEntity);
