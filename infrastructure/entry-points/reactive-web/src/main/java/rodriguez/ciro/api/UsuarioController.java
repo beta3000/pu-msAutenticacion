@@ -42,7 +42,7 @@ public class UsuarioController {
                 .flatMap(registrarUsuarioUseCase::registrar)
                 .map(this::mapToResponse)
                 .doOnSuccess(response ->
-                        log.info("Usuario registrado exitosamente con ID: {}", response.getId()))
+                        log.info("Usuario registrado exitosamente con ID: {}", response.getIdUsuario()))
                 .doOnError(error ->
                         log.error("Error al registrar usuario: {}", error.getMessage()));
     }
@@ -61,7 +61,7 @@ public class UsuarioController {
 
     private UsuarioResponse mapToResponse(Usuario usuario) {
         return UsuarioResponse.builder()
-                .id(usuario.getIdUsuario())
+                .idUsuario(usuario.getIdUsuario())
                 .nombres(usuario.getNombres())
                 .apellidos(usuario.getApellidos())
                 .fechaNacimiento(usuario.getFechaNacimiento())

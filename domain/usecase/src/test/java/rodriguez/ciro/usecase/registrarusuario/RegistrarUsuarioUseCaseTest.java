@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
+import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,7 +43,7 @@ class RegistrarUsuarioUseCaseTest {
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
-                .id(1L)
+                .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
@@ -233,7 +234,7 @@ class RegistrarUsuarioUseCaseTest {
 
         // When & Then
         StepVerifier.create(registrarUsuarioUseCase.registrar(usuario))
-                .expectErrorMatches(error -> error instanceof IllegalArgumentException &&
+                .expectErrorMatches(error -> error instanceof EmailAlreadyExistsException &&
                         error.getMessage().equals("Ya existe un usuario registrado con este correo electrónico"))
                 .verify();
 
@@ -252,7 +253,7 @@ class RegistrarUsuarioUseCaseTest {
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
-                .id(1L)
+                .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
@@ -281,7 +282,7 @@ class RegistrarUsuarioUseCaseTest {
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
-                .id(1L)
+                .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")

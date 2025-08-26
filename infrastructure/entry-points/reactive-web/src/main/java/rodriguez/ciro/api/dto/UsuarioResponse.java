@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsuarioResponse {
-    private Long id;
+    private Long idUsuario;
     private String nombres;
     private String apellidos;
     private LocalDate fechaNacimiento;

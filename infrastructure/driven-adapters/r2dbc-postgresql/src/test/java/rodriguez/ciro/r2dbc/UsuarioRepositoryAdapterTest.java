@@ -66,7 +66,7 @@ class UsuarioRepositoryAdapterTest {
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
-                .id(1L)
+                .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
