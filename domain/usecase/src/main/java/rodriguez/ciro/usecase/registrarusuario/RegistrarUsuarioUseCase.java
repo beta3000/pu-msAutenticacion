@@ -3,6 +3,7 @@ package rodriguez.ciro.usecase.registrarusuario;
 import reactor.core.publisher.Mono;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
+import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class RegistrarUsuarioUseCase {
         return usuarioRepository.existePorCorreoElectronico(usuario.getCorreoElectronico())
                 .flatMap(existe -> {
                     if (Boolean.TRUE.equals(existe)) {
-                        return Mono.error(new IllegalArgumentException(
+                        return Mono.error(new EmailAlreadyExistsException(
                                 "Ya existe un usuario registrado con este correo electrónico"));
                     }
                     return Mono.just(usuario);

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +17,24 @@ import java.util.List;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleEmailAlreadyExistsException(
+            EmailAlreadyExistsException ex,
+            ServerWebExchange exchange) {
+
+        log.error("Email conflict: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .error("Conflict")
+                .message(ex.getMessage())
+                .status(HttpStatus.CONFLICT.value())
+                .timestamp(LocalDateTime.now())
+                .path(exchange.getRequest().getPath().value())
+                .build();
+
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse));
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public Mono<ResponseEntity<ErrorResponse>> handleIllegalArgumentException(
@@ -32,11 +51,6 @@ public class GlobalExceptionHandler {
                 .path(exchange.getRequest().getPath().value())
                 .build();
 
-        if (ex.getMessage().contains("correo electrónico")) {
-            errorResponse.setStatus(HttpStatus.CONFLICT.value());
-            errorResponse.setError("Conflict");
-            return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse));
-        }
 
         return Mono.just(ResponseEntity.badRequest().body(errorResponse));
     }
