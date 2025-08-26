@@ -10,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 import rodriguez.ciro.api.dto.RegistrarUsuarioRequest;
+import rodriguez.ciro.api.dto.RolDto;
 import rodriguez.ciro.api.exception.GlobalExceptionHandler;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.usecase.registrarusuario.RegistrarUsuarioUseCase;
@@ -43,6 +44,7 @@ class UsuarioControllerTest {
                 .telefono("3001234567")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
@@ -82,6 +84,7 @@ class UsuarioControllerTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         // When & Then
@@ -106,6 +109,7 @@ class UsuarioControllerTest {
                 .apellidos("Pérez García")
                 .correoElectronico("email-invalido")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         // When & Then
@@ -130,6 +134,7 @@ class UsuarioControllerTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("16000000"))
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         // When & Then
@@ -154,6 +159,7 @@ class UsuarioControllerTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         when(registrarUsuarioUseCase.registrar(any(Usuario.class)))
@@ -180,6 +186,7 @@ class UsuarioControllerTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         when(registrarUsuarioUseCase.registrar(any(Usuario.class)))
@@ -206,6 +213,7 @@ class UsuarioControllerTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("15000000"))
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()
@@ -238,6 +246,7 @@ class UsuarioControllerTest {
                 .apellidos("Pérez García")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(BigDecimal.ZERO)
+                .rol(RolDto.builder().idRol(2L).build())
                 .build();
 
         Usuario usuarioGuardado = Usuario.builder()

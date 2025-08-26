@@ -1,11 +1,13 @@
-package rodriguez.ciro.r2dbc;
+package rodriguez.ciro.r2dbc.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
+import rodriguez.ciro.model.rol.Rol;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
+import rodriguez.ciro.r2dbc.entity.UsuarioEntity;
 import rodriguez.ciro.r2dbc.helper.ReactiveAdapterOperations;
 
 @Slf4j
@@ -24,9 +26,21 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Usuario> guardar(Usuario usuario) {
         log.debug("Guardando usuario en base de datos");
         return Mono.just(usuario)
-                .map(u -> mapper.map(u, UsuarioEntity.class))
+                .map(u -> {
+                    UsuarioEntity entity = mapper.map(u, UsuarioEntity.class);
+                    if (u.getRol() != null) {
+                        entity.setIdRol(u.getRol().getIdRol());
+                    }
+                    return entity;
+                })
                 .flatMap(repository::save)
-                .map(usuarioData -> mapper.map(usuarioData, Usuario.class))
+                .map(usuarioData -> {
+                    Usuario domain = mapper.map(usuarioData, Usuario.class);
+                    if (usuarioData.getIdRol() != null) {
+                        domain.setRol(Rol.builder().idRol(usuarioData.getIdRol()).build());
+                    }
+                    return domain;
+                })
                 .doOnSuccess(u -> log.debug("Usuario guardado exitosamente con ID: {}", u.getIdUsuario()));
     }
 

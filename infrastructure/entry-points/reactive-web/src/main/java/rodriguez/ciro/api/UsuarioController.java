@@ -12,7 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import rodriguez.ciro.api.dto.RegistrarUsuarioRequest;
+import rodriguez.ciro.api.dto.RolDto;
 import rodriguez.ciro.api.dto.UsuarioResponse;
+import rodriguez.ciro.model.rol.Rol;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.usecase.registrarusuario.RegistrarUsuarioUseCase;
 
@@ -56,10 +58,19 @@ public class UsuarioController {
                 .telefono(request.getTelefono())
                 .correoElectronico(request.getCorreoElectronico())
                 .salarioBase(request.getSalarioBase())
+                .rol(Rol.builder().idRol(request.getRol().getIdRol()).build())
                 .build();
     }
 
     private UsuarioResponse mapToResponse(Usuario usuario) {
+        RolDto rolDto = null;
+        if (usuario.getRol() != null) {
+            rolDto = RolDto.builder()
+                    .idRol(usuario.getRol().getIdRol())
+                    .nombre(usuario.getRol().getNombre())
+                    .descripcion(usuario.getRol().getDescripcion())
+                    .build();
+        }
         return UsuarioResponse.builder()
                 .idUsuario(usuario.getIdUsuario())
                 .nombres(usuario.getNombres())
@@ -69,6 +80,7 @@ public class UsuarioController {
                 .telefono(usuario.getTelefono())
                 .correoElectronico(usuario.getCorreoElectronico())
                 .salarioBase(usuario.getSalarioBase())
+                .rol(rolDto)
                 .build();
     }
 }

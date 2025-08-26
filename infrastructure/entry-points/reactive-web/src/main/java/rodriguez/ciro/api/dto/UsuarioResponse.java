@@ -21,4 +21,5 @@ public class UsuarioResponse {
     private String telefono;
     private String correoElectronico;
     private BigDecimal salarioBase;
+    private RolDto rol;
 }
