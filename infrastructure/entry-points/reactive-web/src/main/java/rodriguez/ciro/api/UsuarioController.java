@@ -1,6 +1,7 @@
 package rodriguez.ciro.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +18,7 @@ import rodriguez.ciro.api.dto.UsuarioResponse;
 import rodriguez.ciro.model.rol.Rol;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.usecase.registrarusuario.RegistrarUsuarioUseCase;
+import rodriguez.ciro.usecase.buscarusuario.BuscarUsuarioPorDocumentoUseCase;
 
 @Slf4j
 @RestController
@@ -26,6 +28,7 @@ import rodriguez.ciro.usecase.registrarusuario.RegistrarUsuarioUseCase;
 public class UsuarioController {
 
     private final RegistrarUsuarioUseCase registrarUsuarioUseCase;
+    private final BuscarUsuarioPorDocumentoUseCase buscarUsuarioPorDocumentoUseCase;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -47,6 +50,48 @@ public class UsuarioController {
                         log.info("Usuario registrado exitosamente con ID: {}", response.getIdUsuario()))
                 .doOnError(error ->
                         log.error("Error al registrar usuario: {}", error.getMessage()));
+    }
+
+    @GetMapping("/documento/{tipoDocumento}/{numeroDocumento}")
+    @Operation(summary = "Buscar usuario por documento", description = "Busca un usuario por tipo y número de documento")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public Mono<UsuarioResponse> buscarUsuarioPorDocumento(
+            @Parameter(description = "Tipo de documento", example = "CC") 
+            @PathVariable("tipoDocumento") String tipoDocumento,
+            @Parameter(description = "Número de documento", example = "12345678")
+            @PathVariable("numeroDocumento") String numeroDocumento) {
+        log.info("Buscando usuario con documento: {} - {}", tipoDocumento, numeroDocumento);
+
+        return buscarUsuarioPorDocumentoUseCase.buscarPorTipoYNumeroDocumento(tipoDocumento, numeroDocumento)
+                .map(this::mapToResponse)
+                .doOnSuccess(response -> 
+                        log.info("Usuario encontrado con ID: {}", response.getIdUsuario()))
+                .doOnError(error ->
+                        log.error("Error al buscar usuario: {}", error.getMessage()));
+    }
+
+    @GetMapping("/email/{correoElectronico}")
+    @Operation(summary = "Buscar usuario por correo electrónico", description = "Busca un usuario por su correo electrónico")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public Mono<UsuarioResponse> buscarUsuarioPorEmail(
+            @Parameter(description = "Correo electrónico del usuario", example = "usuario@ejemplo.com")
+            @PathVariable("correoElectronico") String correoElectronico) {
+        log.info("Buscando usuario con correo: {}", correoElectronico);
+
+        return buscarUsuarioPorDocumentoUseCase.buscarPorCorreoElectronico(correoElectronico)
+                .map(this::mapToResponse)
+                .doOnSuccess(response -> 
+                        log.info("Usuario encontrado por email con ID: {}", response.getIdUsuario()))
+                .doOnError(error ->
+                        log.error("Error al buscar usuario por email: {}", error.getMessage()));
     }
 
     private Usuario mapToUsuario(RegistrarUsuarioRequest request) {

@@ -11,6 +11,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
 import rodriguez.ciro.usecase.registrarusuario.exception.DocumentoAlreadyExistsException;
+import rodriguez.ciro.usecase.buscarusuario.exception.UsuarioNoEncontradoException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,6 +54,24 @@ public class GlobalExceptionHandler {
                 .build();
 
         return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse));
+    }
+
+    @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handleUsuarioNoEncontradoException(
+            UsuarioNoEncontradoException ex,
+            ServerWebExchange exchange) {
+
+        log.error("Usuario no encontrado: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .error("Not Found")
+                .message(ex.getMessage())
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .path(exchange.getRequest().getPath().value())
+                .build();
+
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

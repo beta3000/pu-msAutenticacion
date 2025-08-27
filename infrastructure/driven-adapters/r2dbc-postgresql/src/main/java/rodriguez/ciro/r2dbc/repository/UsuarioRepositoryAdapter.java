@@ -57,4 +57,32 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
         return repository.existsByTipoDocumentoAndNumeroDocumento(tipoDocumento, numeroDocumento)
                 .doOnNext(existe -> log.debug("Usuario con documento {} - {} existe: {}", tipoDocumento, numeroDocumento, existe));
     }
+
+    @Override
+    public Mono<Usuario> buscarPorTipoYNumeroDocumento(String tipoDocumento, String numeroDocumento) {
+        log.debug("Buscando usuario con documento: {} - {}", tipoDocumento, numeroDocumento);
+        return repository.findByTipoDocumentoAndNumeroDocumento(tipoDocumento, numeroDocumento)
+                .map(usuarioData -> {
+                    Usuario domain = mapper.map(usuarioData, Usuario.class);
+                    if (usuarioData.getIdRol() != null) {
+                        domain.setRol(Rol.builder().idRol(usuarioData.getIdRol()).build());
+                    }
+                    return domain;
+                })
+                .doOnSuccess(u -> log.debug("Usuario encontrado con ID: {}", u != null ? u.getIdUsuario() : "null"));
+    }
+
+    @Override
+    public Mono<Usuario> buscarPorCorreoElectronico(String correoElectronico) {
+        log.debug("Buscando usuario con correo: {}", correoElectronico);
+        return repository.findByCorreoElectronico(correoElectronico)
+                .map(usuarioData -> {
+                    Usuario domain = mapper.map(usuarioData, Usuario.class);
+                    if (usuarioData.getIdRol() != null) {
+                        domain.setRol(Rol.builder().idRol(usuarioData.getIdRol()).build());
+                    }
+                    return domain;
+                })
+                .doOnSuccess(u -> log.debug("Usuario encontrado por email con ID: {}", u != null ? u.getIdUsuario() : "null"));
+    }
 }
