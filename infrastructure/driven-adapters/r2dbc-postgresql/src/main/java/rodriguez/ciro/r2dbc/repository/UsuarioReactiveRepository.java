@@ -8,4 +8,6 @@ import rodriguez.ciro.r2dbc.entity.UsuarioEntity;
 public interface UsuarioReactiveRepository extends ReactiveCrudRepository<UsuarioEntity, Long>, ReactiveQueryByExampleExecutor<UsuarioEntity> {
 
     Mono<Boolean> existsByCorreoElectronico(String correoElectronico);
+
+    Mono<Boolean> existsByTipoDocumentoAndNumeroDocumento(String tipoDocumento, String numeroDocumento);
 }

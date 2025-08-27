@@ -5,6 +5,7 @@ import rodriguez.ciro.model.rol.gateways.RolRepository;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
 import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
+import rodriguez.ciro.usecase.registrarusuario.exception.DocumentoAlreadyExistsException;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -29,6 +30,7 @@ public class RegistrarUsuarioUseCase {
                 .doOnNext(this::validarSalario)
                 .flatMap(this::validarRolExistente)
                 .flatMap(this::validarEmailUnico)
+                .flatMap(this::validarDocumentoUnico)
                 .flatMap(usuarioRepository::guardar);
     }
 
@@ -38,6 +40,12 @@ public class RegistrarUsuarioUseCase {
         }
         if (esNuloOVacio(usuario.getApellidos())) {
             throw new IllegalArgumentException("El campo apellidos es requerido");
+        }
+        if (esNuloOVacio(usuario.getTipoDocumento())) {
+            throw new IllegalArgumentException("El campo tipo de documento es requerido");
+        }
+        if (esNuloOVacio(usuario.getNumeroDocumento())) {
+            throw new IllegalArgumentException("El campo número de documento es requerido");
         }
         if (esNuloOVacio(usuario.getCorreoElectronico())) {
             throw new IllegalArgumentException("El campo correo electrónico es requerido");
@@ -77,6 +85,19 @@ public class RegistrarUsuarioUseCase {
                     if (Boolean.TRUE.equals(existe)) {
                         return Mono.error(new EmailAlreadyExistsException(
                                 "Ya existe un usuario registrado con este correo electrónico"));
+                    }
+                    return Mono.just(usuario);
+                });
+    }
+
+    private Mono<Usuario> validarDocumentoUnico(Usuario usuario) {
+        return usuarioRepository.existePorTipoYNumeroDocumento(
+                usuario.getTipoDocumento(),
+                usuario.getNumeroDocumento())
+                .flatMap(existe -> {
+                    if (Boolean.TRUE.equals(existe)) {
+                        return Mono.error(new DocumentoAlreadyExistsException(
+                                "Ya existe un usuario registrado con este tipo y número de documento"));
                     }
                     return Mono.just(usuario);
                 });

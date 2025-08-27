@@ -21,6 +21,12 @@ public class RegistrarUsuarioRequest {
     @NotBlank(message = "El campo apellidos es requerido")
     private String apellidos;
     
+    @NotBlank(message = "El campo tipo de documento es requerido")
+    private String tipoDocumento;
+
+    @NotBlank(message = "El campo número de documento es requerido")
+    private String numeroDocumento;
+
     private LocalDate fechaNacimiento;
     
     private String direccion;

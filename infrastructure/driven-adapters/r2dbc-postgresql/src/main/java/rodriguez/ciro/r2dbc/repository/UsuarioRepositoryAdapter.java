@@ -50,4 +50,11 @@ public class UsuarioRepositoryAdapter extends ReactiveAdapterOperations<
         return repository.existsByCorreoElectronico(correoElectronico)
                 .doOnNext(existe -> log.debug("Usuario con correo {} existe: {}", correoElectronico, existe));
     }
+
+    @Override
+    public Mono<Boolean> existePorTipoYNumeroDocumento(String tipoDocumento, String numeroDocumento) {
+        log.debug("Verificando existencia de usuario con documento: {} - {}", tipoDocumento, numeroDocumento);
+        return repository.existsByTipoDocumentoAndNumeroDocumento(tipoDocumento, numeroDocumento)
+                .doOnNext(existe -> log.debug("Usuario con documento {} - {} existe: {}", tipoDocumento, numeroDocumento, existe));
+    }
 }
