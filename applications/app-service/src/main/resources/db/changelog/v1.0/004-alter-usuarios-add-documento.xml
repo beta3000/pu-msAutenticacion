@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="004" author="ciro.rodriguez">
+        <comment>Agregar campos tipo_documento y numero_documento a la tabla usuarios</comment>
+
+        <addColumn tableName="usuarios">
+            <column name="tipo_documento" type="VARCHAR(20)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="numero_documento" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <createIndex tableName="usuarios" indexName="idx_usuarios_tipo_numero_documento">
+            <column name="tipo_documento"/>
+            <column name="numero_documento"/>
+        </createIndex>
+
+        <addUniqueConstraint tableName="usuarios"
+                             columnNames="tipo_documento, numero_documento"
+                             constraintName="uk_usuarios_tipo_numero_documento"/>
+    </changeSet>
+
+</databaseChangeLog>

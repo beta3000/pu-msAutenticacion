@@ -1,17 +1,18 @@
-package rodriguez.ciro.model.usuario;
+package rodriguez.ciro.api.dto;
 
-import lombok.*;
-import rodriguez.ciro.model.rol.Rol;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
+@Builder
 @NoArgsConstructor
-@Builder(toBuilder = true)
-public class Usuario {
+@AllArgsConstructor
+public class UsuarioResponse {
     private Long idUsuario;
     private String nombres;
     private String apellidos;
@@ -22,5 +23,5 @@ public class Usuario {
     private String telefono;
     private String correoElectronico;
     private BigDecimal salarioBase;
-    private Rol rol;
+    private RolDto rol;
 }
