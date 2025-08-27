@@ -12,6 +12,7 @@ import rodriguez.ciro.model.rol.gateways.RolRepository;
 import rodriguez.ciro.model.usuario.Usuario;
 import rodriguez.ciro.model.usuario.gateways.UsuarioRepository;
 import rodriguez.ciro.usecase.registrarusuario.exception.EmailAlreadyExistsException;
+import rodriguez.ciro.usecase.registrarusuario.exception.DocumentoAlreadyExistsException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +33,8 @@ class RegistrarUsuarioUseCaseTest {
     void setUp() {
         registrarUsuarioUseCase = new RegistrarUsuarioUseCase(usuarioRepository, rolRepository);
         lenient().when(rolRepository.existePorId(anyLong())).thenReturn(Mono.just(true));
+        lenient().when(usuarioRepository.existePorCorreoElectronico(anyString())).thenReturn(Mono.just(false));
+        lenient().when(usuarioRepository.existePorTipoYNumeroDocumento(anyString(), anyString())).thenReturn(Mono.just(false));
     }
 
     @Test
@@ -40,6 +43,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
                 .direccion("Calle 123 #45-67")
                 .telefono("3001234567")
@@ -52,6 +57,8 @@ class RegistrarUsuarioUseCaseTest {
                 .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
                 .direccion("Calle 123 #45-67")
                 .telefono("3001234567")
@@ -63,6 +70,8 @@ class RegistrarUsuarioUseCaseTest {
         when(rolRepository.existePorId(2L)).thenReturn(Mono.just(true));
         when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))
                 .thenReturn(Mono.just(false));
+        when(usuarioRepository.existePorTipoYNumeroDocumento("CC", "12345678"))
+                .thenReturn(Mono.just(false));
         when(usuarioRepository.guardar(any(Usuario.class)))
                 .thenReturn(Mono.just(usuarioGuardado));
 
@@ -72,6 +81,7 @@ class RegistrarUsuarioUseCaseTest {
                 .verifyComplete();
 
         verify(usuarioRepository).existePorCorreoElectronico("juan.perez@email.com");
+        verify(usuarioRepository).existePorTipoYNumeroDocumento("CC", "12345678");
         verify(usuarioRepository).guardar(usuario);
     }
 
@@ -81,6 +91,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres(null)
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
                 .build();
@@ -100,6 +112,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("   ")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
                 .build();
@@ -119,6 +133,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos(null)
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
                 .build();
@@ -133,11 +149,97 @@ class RegistrarUsuarioUseCaseTest {
     }
 
     @Test
+    void deberiaFallarCuandoTipoDocumentoEsNulo() {
+        // Given
+        Usuario usuario = Usuario.builder()
+                .nombres("Juan Carlos")
+                .apellidos("Pérez García")
+                .tipoDocumento(null)
+                .numeroDocumento("12345678")
+                .correoElectronico("juan.perez@email.com")
+                .salarioBase(new BigDecimal("3000000"))
+                .build();
+
+        // When & Then
+        StepVerifier.create(registrarUsuarioUseCase.registrar(usuario))
+                .expectErrorMatches(error -> error instanceof IllegalArgumentException &&
+                        error.getMessage().equals("El campo tipo de documento es requerido"))
+                .verify();
+
+        verifyNoInteractions(usuarioRepository);
+    }
+
+    @Test
+    void deberiaFallarCuandoTipoDocumentoEsVacio() {
+        // Given
+        Usuario usuario = Usuario.builder()
+                .nombres("Juan Carlos")
+                .apellidos("Pérez García")
+                .tipoDocumento("   ")
+                .numeroDocumento("12345678")
+                .correoElectronico("juan.perez@email.com")
+                .salarioBase(new BigDecimal("3000000"))
+                .build();
+
+        // When & Then
+        StepVerifier.create(registrarUsuarioUseCase.registrar(usuario))
+                .expectErrorMatches(error -> error instanceof IllegalArgumentException &&
+                        error.getMessage().equals("El campo tipo de documento es requerido"))
+                .verify();
+
+        verifyNoInteractions(usuarioRepository);
+    }
+
+    @Test
+    void deberiaFallarCuandoNumeroDocumentoEsNulo() {
+        // Given
+        Usuario usuario = Usuario.builder()
+                .nombres("Juan Carlos")
+                .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento(null)
+                .correoElectronico("juan.perez@email.com")
+                .salarioBase(new BigDecimal("3000000"))
+                .build();
+
+        // When & Then
+        StepVerifier.create(registrarUsuarioUseCase.registrar(usuario))
+                .expectErrorMatches(error -> error instanceof IllegalArgumentException &&
+                        error.getMessage().equals("El campo número de documento es requerido"))
+                .verify();
+
+        verifyNoInteractions(usuarioRepository);
+    }
+
+    @Test
+    void deberiaFallarCuandoNumeroDocumentoEsVacio() {
+        // Given
+        Usuario usuario = Usuario.builder()
+                .nombres("Juan Carlos")
+                .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("   ")
+                .correoElectronico("juan.perez@email.com")
+                .salarioBase(new BigDecimal("3000000"))
+                .build();
+
+        // When & Then
+        StepVerifier.create(registrarUsuarioUseCase.registrar(usuario))
+                .expectErrorMatches(error -> error instanceof IllegalArgumentException &&
+                        error.getMessage().equals("El campo número de documento es requerido"))
+                .verify();
+
+        verifyNoInteractions(usuarioRepository);
+    }
+
+    @Test
     void deberiaFallarCuandoCorreoElectronicoEsNulo() {
         // Given
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico(null)
                 .salarioBase(new BigDecimal("3000000"))
                 .build();
@@ -157,6 +259,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(null)
                 .build();
@@ -176,6 +280,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("email-invalido")
                 .salarioBase(new BigDecimal("3000000"))
                 .rol(Rol.builder().idRol(2L).build())
@@ -196,6 +302,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("-1000"))
                 .rol(Rol.builder().idRol(2L).build())
@@ -216,6 +324,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("16000000"))
                 .rol(Rol.builder().idRol(2L).build())
@@ -236,6 +346,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("3000000"))
                 .rol(Rol.builder().idRol(2L).build())
@@ -255,11 +367,42 @@ class RegistrarUsuarioUseCaseTest {
     }
 
     @Test
+    void deberiaFallarCuandoDocumentoYaExiste() {
+        // Given
+        Usuario usuario = Usuario.builder()
+                .nombres("Juan Carlos")
+                .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
+                .correoElectronico("juan.perez@email.com")
+                .salarioBase(new BigDecimal("3000000"))
+                .rol(Rol.builder().idRol(2L).build())
+                .build();
+
+        when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))
+                .thenReturn(Mono.just(false));
+        when(usuarioRepository.existePorTipoYNumeroDocumento("CC", "12345678"))
+                .thenReturn(Mono.just(true));
+
+        // When & Then
+        StepVerifier.create(registrarUsuarioUseCase.registrar(usuario))
+                .expectErrorMatches(error -> error instanceof DocumentoAlreadyExistsException &&
+                        error.getMessage().equals("Ya existe un usuario registrado con este tipo y número de documento"))
+                .verify();
+
+        verify(usuarioRepository).existePorCorreoElectronico("juan.perez@email.com");
+        verify(usuarioRepository).existePorTipoYNumeroDocumento("CC", "12345678");
+        verify(usuarioRepository, never()).guardar(any());
+    }
+
+    @Test
     void deberiaAceptarSalarioEnLimiteInferior() {
         // Given
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(BigDecimal.ZERO)
                 .rol(Rol.builder().idRol(2L).build())
@@ -269,12 +412,16 @@ class RegistrarUsuarioUseCaseTest {
                 .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(BigDecimal.ZERO)
                 .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))
+                .thenReturn(Mono.just(false));
+        when(usuarioRepository.existePorTipoYNumeroDocumento("CC", "12345678"))
                 .thenReturn(Mono.just(false));
         when(usuarioRepository.guardar(any(Usuario.class)))
                 .thenReturn(Mono.just(usuarioGuardado));
@@ -291,6 +438,8 @@ class RegistrarUsuarioUseCaseTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("15000000"))
                 .rol(Rol.builder().idRol(2L).build())
@@ -300,12 +449,16 @@ class RegistrarUsuarioUseCaseTest {
                 .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .correoElectronico("juan.perez@email.com")
                 .salarioBase(new BigDecimal("15000000"))
                 .rol(Rol.builder().idRol(2L).build())
                 .build();
 
         when(usuarioRepository.existePorCorreoElectronico("juan.perez@email.com"))
+                .thenReturn(Mono.just(false));
+        when(usuarioRepository.existePorTipoYNumeroDocumento("CC", "12345678"))
                 .thenReturn(Mono.just(false));
         when(usuarioRepository.guardar(any(Usuario.class)))
                 .thenReturn(Mono.just(usuarioGuardado));
