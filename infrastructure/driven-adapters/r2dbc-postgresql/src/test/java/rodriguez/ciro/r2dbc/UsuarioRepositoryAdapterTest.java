@@ -41,6 +41,8 @@ class UsuarioRepositoryAdapterTest {
         Usuario usuario = Usuario.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
                 .direccion("Calle 123 #45-67")
                 .telefono("3001234567")
@@ -52,6 +54,8 @@ class UsuarioRepositoryAdapterTest {
         UsuarioEntity usuarioEntity = UsuarioEntity.builder()
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
                 .direccion("Calle 123 #45-67")
                 .telefono("3001234567")
@@ -64,6 +68,8 @@ class UsuarioRepositoryAdapterTest {
                 .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
                 .direccion("Calle 123 #45-67")
                 .telefono("3001234567")
@@ -76,6 +82,8 @@ class UsuarioRepositoryAdapterTest {
                 .idUsuario(1L)
                 .nombres("Juan Carlos")
                 .apellidos("Pérez García")
+                .tipoDocumento("CC")
+                .numeroDocumento("12345678")
                 .fechaNacimiento(LocalDate.of(1990, 5, 15))
                 .direccion("Calle 123 #45-67")
                 .telefono("3001234567")
@@ -118,6 +126,52 @@ class UsuarioRepositoryAdapterTest {
 
         // When & Then
         StepVerifier.create(usuarioRepositoryAdapter.existePorCorreoElectronico(correoElectronico))
+                .expectNext(false)
+                .verifyComplete();
+    }
+
+    @Test
+    void deberiaVerificarExistenciaDeDocumento() {
+        // Given
+        String tipoDocumento = "CC";
+        String numeroDocumento = "12345678";
+
+        when(usuarioReactiveRepository.existsByTipoDocumentoAndNumeroDocumento(tipoDocumento, numeroDocumento))
+                .thenReturn(Mono.just(true));
+
+        // When & Then
+        StepVerifier.create(usuarioRepositoryAdapter.existePorTipoYNumeroDocumento(tipoDocumento, numeroDocumento))
+                .expectNext(true)
+                .verifyComplete();
+    }
+
+    @Test
+    void deberiaRetornarFalsoCuandoDocumentoNoExiste() {
+        // Given
+        String tipoDocumento = "CC";
+        String numeroDocumento = "87654321";
+
+        when(usuarioReactiveRepository.existsByTipoDocumentoAndNumeroDocumento(tipoDocumento, numeroDocumento))
+                .thenReturn(Mono.just(false));
+
+        // When & Then
+        StepVerifier.create(usuarioRepositoryAdapter.existePorTipoYNumeroDocumento(tipoDocumento, numeroDocumento))
+                .expectNext(false)
+                .verifyComplete();
+    }
+
+    @Test
+    void deberiaDistinguirDocumentosPorTipo() {
+        // Given
+        String tipoDocumento = "CE";
+        String numeroDocumento = "12345678";
+
+        // Mismo número pero diferente tipo - no debería existir
+        when(usuarioReactiveRepository.existsByTipoDocumentoAndNumeroDocumento(tipoDocumento, numeroDocumento))
+                .thenReturn(Mono.just(false));
+
+        // When & Then
+        StepVerifier.create(usuarioRepositoryAdapter.existePorTipoYNumeroDocumento(tipoDocumento, numeroDocumento))
                 .expectNext(false)
                 .verifyComplete();
     }

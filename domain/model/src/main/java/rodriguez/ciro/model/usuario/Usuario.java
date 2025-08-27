@@ -15,6 +15,8 @@ public class Usuario {
     private Long idUsuario;
     private String nombres;
     private String apellidos;
+    private String tipoDocumento;
+    private String numeroDocumento;
     private LocalDate fechaNacimiento;
     private String direccion;
     private String telefono;

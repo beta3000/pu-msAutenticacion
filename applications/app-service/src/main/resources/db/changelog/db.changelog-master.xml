@@ -8,5 +8,6 @@
     <include file="classpath:/db/changelog/v1.0/001-create-usuario-table.xml"/>
     <include file="classpath:/db/changelog/v1.0/002-create-roles-table.xml"/>
     <include file="classpath:/db/changelog/v1.0/003-alter-usuarios-add-rol.xml"/>
+    <include file="classpath:/db/changelog/v1.0/004-alter-usuarios-add-documento.xml"/>
 
 </databaseChangeLog>

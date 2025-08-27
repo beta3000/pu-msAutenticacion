@@ -24,6 +24,10 @@ public class UsuarioEntity {
     private String nombres;
     @Column("apellidos")
     private String apellidos;
+    @Column("tipo_documento")
+    private String tipoDocumento;
+    @Column("numero_documento")
+    private String numeroDocumento;
     @Column("fecha_nacimiento")
     private LocalDate fechaNacimiento;
     @Column("direccion")
